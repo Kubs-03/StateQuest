@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link href='https://fonts.googleapis.com/css?family=Amatic SC' rel='stylesheet'>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Geospatial</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: rgb(66, 160, 66);
+            font-family: Amatic SC;
+        }
+
+        .custom-bg-info {
+            background-color: #a7d7e7 !important;
+        }
+
+        #map {
+            height: 70vh;
+            width: 100%;
+            border: #000000 dashed 3px;
+            border-radius: 10px;
+            /* margin-bottom: 20px; */
+            /* flex: 1; */
+            background-color: rgb(255, 255, 255);
+        }
+
+        #message {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            background-color: green;
+            color: rgb(255, 255, 255);
+            font-size: 35px;
+            font-weight: bold;
+            border-radius: 5px;
+            z-index: 1000;
+            /* Ensure it appears on top */
+        }
+
+        .play-again-btn {
+            /* font-family:Amatic SC; */
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 30px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            /* Rounded corners */
+            transition: background-color 0.3s;
+            /* Smooth transition */
+        }
+
+        .play-again-btn:hover {
+            background-color: #45a049;
+            /* Darker green on hover */
+        }
+
+        #result {
+            /* font-family:Amatic SC; */
+            display: none;
+            /* Hide the result initially */
+            /* font-size: 30px; */
+        }
+
+        #score {
+            /* font-family:Amatic SC; */
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 992px) {
+            #map {
+                height: 50vh;
+                /* 50% height on smaller screens */
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <nav class="navbar ">
+        <div class="container-xxl">
+            <a href="intro" class="navbar-brand ">
+                <span class="fw-bold display-3 justify-content-center">
+                    States of India
+                </span>
+            </a>
+            <!-- toggle btn for nav -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+                aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Contents</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 ">
+                        <li class="nav-item ">
+                            <a class="nav-link active text-white" aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#">Link</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex mt-3" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="content">
+        <div class="container-lg my-4">
+            <div class="row justify-content-center align-item-center g-5">
+                <div class="col-9 col-lg-7 border-black border-2">
+                    <h2 class="fw-bold fs-1" style=" font-family:Amatic SC;"> Map</h2>
+                    <div id="map">
+                    </div>
+                </div>
+
+                <div class="col-8 col-lg-5">
+                    <div class="text-start d-none d-lg-block custom-bg-info border border-1 border-black rounded-3 my-3 p-2"
+                        style="background-color: #4caf50;"">
+                    <h5>Instructions:</h5>
+                    <ul>
+                      <li>Identify the states listed in the questions below.</li>
+                      <li>Select the correct state on the map corresponding to each question.</li>
+                      <li>Maximize your score and test your geographical knowledge.</li>
+                    </ul>
+                    </div>
+                    <div class=" ques my-lg-5 fs-lg-5" id="quiz-container" style="display: none;">
+                        <h2 id="question" style="font-size: 38px; "></h2>
+                    </div>
+
+                    <div id="message" style="display:none;"></div>
+                    <button class="start-btn btn btn-outline-success btn-lg ">Start </button>
+
+                    <div id="result"></div>
+
+                    <div id="score"></div>
+
+                    <audio id="correct-sound" src="zapsplat_notification.mp3"></audio>
+                    <audio id="incorrect-sound" src="zapsplat_incorrect.mp3"></audio>
+                </div>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="states.geojson"></script>
+    <script src="states.js"></script>
+</body>
+
+</html>
